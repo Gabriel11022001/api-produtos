@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.gabriel.apiprodutos.dtos.ProdutoDTO;
 import com.gabriel.apiprodutos.models.Produto;
+import com.gabriel.apiprodutos.repositorios.CategoriaRepositorio;
 import com.gabriel.apiprodutos.repositorios.ProdutoRepositorio;
 import com.gabriel.apiprodutos.utils.RetornoRequisicao;
 import com.google.gson.Gson;
@@ -94,6 +95,116 @@ public class ProdutoController {
 		} catch (Exception e) {
 			retornoRequisicao.setMensagem(e.getMessage());
 			retornoRequisicao.setConteudo(new ArrayList<ProdutoDTO>());
+		}
+		requisicao.setCharacterEncoding("utf-8");
+		resposta.setCharacterEncoding("utf-8");
+		resposta.setContentType("application/json");
+		String retornoJson = this.gson.toJson(retornoRequisicao);
+		PrintWriter pw = resposta.getWriter();
+		pw.write(retornoJson);
+		pw.flush();
+	}
+	public void buscarProdutoPeloId(HttpServletRequest requisicao, HttpServletResponse resposta) throws IOException {
+		RetornoRequisicao<ProdutoDTO> retornoRequisicao = new RetornoRequisicao<ProdutoDTO>();
+		try {
+			String idProdutoString = requisicao.getParameter("id");
+			if (idProdutoString.isEmpty()) {
+				throw new Exception("Informe o id do produto!");
+			}
+			int idProduto = Integer.parseInt(idProdutoString);
+			if (idProduto <= 0) {
+				throw new Exception("Id inválido, o id do produto deve ser um valor inteiro e maior que 0!");
+			}
+			ProdutoDTO produtoDTO = this.produtoRepositorio.buscarPeloId(idProduto);
+			if (produtoDTO == null) {
+				throw new Exception("Não existe um produto com esse id cadastrado no banco de dados!");
+			}
+			retornoRequisicao.setConteudo(produtoDTO);
+			retornoRequisicao.setMensagem("Produto cadastrado no banco de dados!");
+		} catch (NumberFormatException e) {
+			retornoRequisicao.setMensagem("Id inválido, o id do produto deve ser um valor numérico, inteiro e maior que 0!");
+		} catch (Exception e) {
+			retornoRequisicao.setMensagem(e.getMessage());
+		}
+		requisicao.setCharacterEncoding("utf-8");
+		resposta.setCharacterEncoding("utf-8");
+		resposta.setContentType("application/json");
+		String retornoJson = this.gson.toJson(retornoRequisicao);
+		PrintWriter pw = resposta.getWriter();
+		pw.write(retornoJson);
+		pw.flush();
+	}
+	public void removerProduto(HttpServletRequest requisicao, HttpServletResponse resposta) throws IOException {
+		RetornoRequisicao<String> retornoRequisicao = new RetornoRequisicao<String>();
+		try {
+			String idProdutoString = requisicao.getParameter("id");
+			if (idProdutoString.isEmpty()) {
+				throw new Exception("Informe o id do produto!");
+			}
+			int idProduto = Integer.parseInt(idProdutoString);
+			if (idProduto <= 0) {
+				throw new Exception("Id inválido, o id do produto deve ser um valor inteiro e maior que 0!");
+			}
+			ProdutoDTO produtoDTO = this.produtoRepositorio.buscarPeloId(idProduto);
+			if (produtoDTO == null) {
+				throw new Exception("Não existe um produto cadastrado com esse id no banco de dados!");
+			}
+			this.produtoRepositorio.remover(idProduto);
+			retornoRequisicao.setMensagem("Produto removido com sucesso!");
+		} catch (NumberFormatException e) {
+			retornoRequisicao.setMensagem("Id inválido, o id do produto deve ser um valor numérico, inteiro e maior que 0!");
+		}catch (Exception e) {
+			retornoRequisicao.setMensagem(e.getMessage());
+		}
+		requisicao.setCharacterEncoding("utf-8");
+		resposta.setCharacterEncoding("utf-8");
+		resposta.setContentType("application/json");
+		String retornoJson = this.gson.toJson(retornoRequisicao);
+		PrintWriter printWriter = resposta.getWriter();
+		printWriter.write(retornoJson);
+		printWriter.flush();
+	}
+	public void atualizarProduto(HttpServletRequest requisicao, HttpServletResponse resposta) throws IOException {
+		RetornoRequisicao<ProdutoDTO> retornoRequisicao = new RetornoRequisicao<ProdutoDTO>();
+		try {
+			String produtoJson = "";
+			BufferedReader bf = requisicao.getReader();
+			while (bf.ready()) {
+				produtoJson += bf.readLine();
+			}
+			Produto produto = this.gson.fromJson(produtoJson, Produto.class);
+			if (produto.getId() <= 0) {
+				throw new Exception("Id inválido, o id do produto deve ser um valor inteiro e maior que 0!");
+			}
+			if (produto.getNome() == null) {
+				throw new Exception("Informe o nome do produto!");
+			}
+			if (produto.getDescricaoResumida() == null) {
+				throw new Exception("Informe a descrição resumida do produto!");
+			}
+			if (produto.getDescricaoCompleta() == null) {
+				throw new Exception("Informe a descrição completa do produto!");
+			}
+			if (produto.getPrecoVenda() <= 0) {
+				throw new Exception("O preço de venda do produto deve ser maior que 0!");
+			}
+			if (produto.getCategoriaId() <= 0) {
+				throw new Exception("Id inválido, o id da categoria deve ser um valor numérico, inteiro e maior que 0!");
+			}
+			if (produto.getQuantidadeUnidadesEmEstoque() < 0) {
+				throw new Exception("Quantidade de unidades do produto inválida!");
+			}
+			if (this.produtoRepositorio.buscarPeloId(produto.getId()) == null) {
+				throw new Exception("Não existe um produto cadastrado no banco de dados com esse id!");
+			}
+			if (new CategoriaRepositorio().buscarPeloId(produto.getCategoriaId()) == null) {
+				throw new Exception("Não existe uma categoria cadastrada no banco de dados com esse id!");
+			}
+			ProdutoDTO produtoAtualizado = this.produtoRepositorio.atualizar(produto);
+			retornoRequisicao.setMensagem("Produto atualizado com sucesso!");
+			retornoRequisicao.setConteudo(produtoAtualizado);
+		} catch (Exception e) {
+			retornoRequisicao.setMensagem(e.getMessage());
 		}
 		requisicao.setCharacterEncoding("utf-8");
 		resposta.setCharacterEncoding("utf-8");

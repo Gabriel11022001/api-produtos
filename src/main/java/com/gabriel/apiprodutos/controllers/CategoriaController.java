@@ -10,8 +10,10 @@ import java.util.Date;
 import java.util.List;
 
 import com.gabriel.apiprodutos.dtos.CategoriaDTO;
+import com.gabriel.apiprodutos.dtos.ProdutoDTO;
 import com.gabriel.apiprodutos.models.Categoria;
 import com.gabriel.apiprodutos.repositorios.CategoriaRepositorio;
+import com.gabriel.apiprodutos.repositorios.ProdutoRepositorio;
 import com.gabriel.apiprodutos.utils.RetornoRequisicao;
 import com.google.gson.Gson;
 
@@ -112,7 +114,7 @@ public class CategoriaController {
 		pw.flush();
 	}
 	public void removerCategoria(HttpServletRequest requisicao, HttpServletResponse resposta) throws IOException {
-		String mensagemRetorno = "";
+		RetornoRequisicao<String> retornoRequisicao = new RetornoRequisicao<String>();
 		try {
 			String idCategoriaString = requisicao.getParameter("id");
 			if (idCategoriaString.isEmpty()) {
@@ -122,16 +124,35 @@ public class CategoriaController {
 			if (idCategoria <= 0) {
 				throw new Exception("O id da categoria deve ser maior que 0!");
 			}
-			
+			CategoriaDTO categoriaDTO = this.categoriaRepositorio.buscarPeloId(idCategoria);
+			if (categoriaDTO == null) {
+				throw new Exception("Não existe uma categoria cadastrada com esse id no banco de dados!");
+			}
+			ProdutoRepositorio produtoRepositorio = new ProdutoRepositorio();
+			List<ProdutoDTO> produtos = produtoRepositorio.buscarTodos();
+			if (produtos.size() > 0) {
+				boolean existeProdutoComCategoriaInformada = false;
+				for (ProdutoDTO produtoDTO : produtos) {
+					if (produtoDTO.getCategoria().getId() == idCategoria) {
+						existeProdutoComCategoriaInformada = true;
+						break;
+					}
+				}
+				if (existeProdutoComCategoriaInformada) {
+					throw new Exception("Você não pode deletar essa categoria pois ela está relacionada a produtos!");
+				}
+			}
+			this.categoriaRepositorio.remover(idCategoria);
+			retornoRequisicao.setMensagem("Categoria deletada com sucesso!");
 		} catch (NumberFormatException e) {
-			mensagemRetorno = "Id inválido, o id da categoria deve ser um valor numérico, inteiro e maior que 0!";
+			retornoRequisicao.setMensagem("Id inválido, o id da categoria deve ser um valor numérico, inteiro e maior que 0!");
 		} catch (Exception e) {
-			mensagemRetorno = e.getMessage();
+			retornoRequisicao.setMensagem(e.getMessage());
 		}
 		requisicao.setCharacterEncoding("utf-8");
 		resposta.setCharacterEncoding("utf-8");
 		resposta.setContentType("application/json");
-		String retornoJson = this.gson.toJson(mensagemRetorno);
+		String retornoJson = this.gson.toJson(retornoRequisicao);
 		PrintWriter pw = resposta.getWriter();
 		pw.write(retornoJson);
 		pw.flush();

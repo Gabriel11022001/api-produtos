@@ -15,7 +15,9 @@ import jakarta.servlet.http.HttpServletResponse;
 		"/categorias/remover",
 		"/categorias/atualizar",
 		"/produtos/cadastrar",
-		"/produtos"
+		"/produtos",
+		"/produtos/consultar",
+		"/produtos/remover"
 })
 public class Controller extends HttpServlet {
 
@@ -59,6 +61,16 @@ public class Controller extends HttpServlet {
 		if (endpoint.equals("/produtos")) {
 			ProdutoController produtoController = new ProdutoController();
 			produtoController.buscarTodosProdutos(requisicao, resposta);
+			return;
+		}
+		if (endpoint.equals("/produtos/consultar")) {
+			ProdutoController produtoController = new ProdutoController();
+			produtoController.buscarProdutoPeloId(requisicao, resposta);
+			return;
+		}
+		if (endpoint.equals("/produtos/remover")) {
+			ProdutoController produtoController = new ProdutoController();
+			produtoController.removerProduto(requisicao, resposta);
 			return;
 		}
 	}

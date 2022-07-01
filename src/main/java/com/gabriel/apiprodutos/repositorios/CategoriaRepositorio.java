@@ -85,7 +85,11 @@ public class CategoriaRepositorio implements ICategoriaRepositorio {
 	}
 	@Override
 	public void remover(int id) throws Exception {
+		String query = "DELETE FROM tbl_categorias WHERE categoria_id = ?;";
 		Connection conexao = Conexao.getConexao();
+		PreparedStatement stmt = conexao.prepareStatement(query);
+		stmt.setInt(1, id);
+		stmt.execute();
 		conexao.close();
 	}
 }

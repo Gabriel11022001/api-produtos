@@ -43,8 +43,21 @@ public class ProdutoRepositorio implements IProdutoRepositorio {
 	}
 	@Override
 	public ProdutoDTO atualizar(Produto obj) throws Exception {
-		
-		return null;
+		ProdutoDTO produtoDTO = null;
+		String query = "";
+		Connection conexao = Conexao.getConexao();
+		PreparedStatement stmt = conexao.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+		int quantidadeLinhasAfetadas = stmt.executeUpdate();
+		if (quantidadeLinhasAfetadas > 0) {
+			ResultSet rs = stmt.getGeneratedKeys();
+			if (rs.next()) {
+				int idProduto = rs.getInt(1);
+				produtoDTO = this.buscarPeloId(idProduto);
+				produtoDTO.setId(idProduto);
+			}
+		}
+		conexao.close();
+		return produtoDTO;
 	}
 	@Override
 	public List<ProdutoDTO> buscarTodos() throws Exception {
@@ -99,7 +112,12 @@ public class ProdutoRepositorio implements IProdutoRepositorio {
 	}
 	@Override
 	public void remover(int id) throws Exception {
-		
+		String query = "DELETE FROM tbl_produtos WHERE produto_id = ?;";
+		Connection conexao = Conexao.getConexao();
+		PreparedStatement stmt = conexao.prepareStatement(query);
+		stmt.setInt(1, id);
+		stmt.execute();
+		conexao.close();
 	}
 	@Override
 	public ProdutoDTO buscarProdutoPeloNome(String nome) throws Exception {
