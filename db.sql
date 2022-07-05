@@ -32,15 +32,4 @@ insert into tbl_produtos(
     produto_data_cadastro,
     produto_quantidade_unidades_em_estoque,
     categoria_id
-) values(
-	'Produto de teste 1',
-    'Produto de teste 1 - descrição resumida',
-    'Produto de teste 1 - descrição completa',
-    12.87,
-    1,
-    now(),
-    23,
-    1
-);
-select * from tbl_produtos, tbl_categorias where tbl_produtos.categoria_id = tbl_categorias.categoria_id
-and tbl_categorias.categoria_id = 1;
+) values('Produto de teste 1', 'Produto de teste 1 - descrição resumida', 'Produto de teste 1 - descrição completa', 12.87, 1, now(), 23, 1);

@@ -17,7 +17,11 @@ import jakarta.servlet.http.HttpServletResponse;
 		"/produtos/cadastrar",
 		"/produtos",
 		"/produtos/consultar",
-		"/produtos/remover"
+		"/produtos/remover",
+		"/produtos/listar-produtos-em-destaque",
+		"/produtos/buscar-pelo-nome",
+		"/produtos/buscar-entre-precos",
+		"/produtos/buscar-pela-categoria"
 })
 public class Controller extends HttpServlet {
 
@@ -71,6 +75,26 @@ public class Controller extends HttpServlet {
 		if (endpoint.equals("/produtos/remover")) {
 			ProdutoController produtoController = new ProdutoController();
 			produtoController.removerProduto(requisicao, resposta);
+			return;
+		}
+		if (endpoint.equals("/produtos/listar-produtos-em-destaque")) {
+			ProdutoController produtoController = new ProdutoController();
+			produtoController.buscarProdutosEmDestaque(requisicao, resposta);
+			return;
+		}
+		if (endpoint.equals("/produtos/buscar-pelo-nome")) {
+			ProdutoController produtoController = new ProdutoController();
+			produtoController.buscarProdutoPeloNome(requisicao, resposta);
+			return;
+		}
+		if (endpoint.equals("/produtos/buscar-entre-precos")) {
+			ProdutoController produtoController = new ProdutoController();
+			produtoController.buscarProdutosEntrePrecos(requisicao, resposta);
+			return;
+		}
+		if (endpoint.equals("/produtos/buscar-pela-categoria")) {
+			ProdutoController produtoController = new ProdutoController();
+			produtoController.buscarProdutoPelaCategoria(requisicao, resposta);
 			return;
 		}
 	}

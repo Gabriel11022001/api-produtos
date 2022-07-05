@@ -214,4 +214,136 @@ public class ProdutoController {
 		pw.write(retornoJson);
 		pw.flush();
 	}
+	public void buscarProdutosEmDestaque(HttpServletRequest requisicao, HttpServletResponse resposta) throws IOException {
+		RetornoRequisicao<List<ProdutoDTO>> retornoRequisicao = new RetornoRequisicao<List<ProdutoDTO>>();
+		try {
+			List<ProdutoDTO> produtosEmDestaque = this.produtoRepositorio.buscarProdutosEmDestaque();
+			if (produtosEmDestaque.size() == 0) {
+				throw new Exception("Não existem produtos em destaque no banco de dados!");
+			}
+			if (produtosEmDestaque.size() == 1) {
+				retornoRequisicao.setMensagem("Existe no total um produto em destaque!");
+			} else {
+				retornoRequisicao.setMensagem("Existe um total de " + produtosEmDestaque.size() + " produtos em destaque no banco de dados!");
+			}
+			retornoRequisicao.setConteudo(produtosEmDestaque);
+ 		} catch (Exception e) {
+			retornoRequisicao.setMensagem(e.getMessage());
+			retornoRequisicao.setConteudo(new ArrayList<ProdutoDTO>());
+		}
+		requisicao.setCharacterEncoding("utf-8");
+		resposta.setCharacterEncoding("utf-8");
+		resposta.setContentType("application/json");
+		String retornoJson = this.gson.toJson(retornoRequisicao);
+		PrintWriter pw = resposta.getWriter();
+		pw.write(retornoJson);
+		pw.flush();
+	}
+	public void buscarProdutoPeloNome(HttpServletRequest requisicao, HttpServletResponse resposta) throws IOException {
+		RetornoRequisicao<List<ProdutoDTO>> retornoRequisicao = new RetornoRequisicao<List<ProdutoDTO>>();
+		try {
+			String nomeProduto = requisicao.getParameter("nome");
+			if (nomeProduto == null) {
+				throw new Exception("O nome do produto não pode apontar para null!");
+			}
+			if (nomeProduto.isEmpty()) {
+				throw new Exception("Informe o nome do produto!");
+			}
+			List<ProdutoDTO> produtosComONomeInformado = this.produtoRepositorio.buscarProdutoPeloNome(nomeProduto);
+			if (produtosComONomeInformado.size() == 0) {
+				throw new Exception("Não existem produtos cadastrados com esse nome!");
+			}
+			if (produtosComONomeInformado.size() == 1) {
+				retornoRequisicao.setMensagem("Existe no total 1 produto que contêm esse nome!");
+			} else {
+				retornoRequisicao.setMensagem("Existe no total " + produtosComONomeInformado.size() + " produtos que contêm esse nome!");
+			}
+			retornoRequisicao.setConteudo(produtosComONomeInformado);
+		} catch (Exception e) {
+			retornoRequisicao.setMensagem(e.getMessage());
+			e.printStackTrace();
+		}
+		requisicao.setCharacterEncoding("utf-8");
+		resposta.setCharacterEncoding("utf-8");
+		resposta.setContentType("application/json");
+		String respostaJson = this.gson.toJson(retornoRequisicao);
+		PrintWriter pw = resposta.getWriter();
+		pw.write(respostaJson);
+		pw.flush();
+	}
+	public void buscarProdutosEntrePrecos(HttpServletRequest requisicao, HttpServletResponse resposta) throws IOException {
+		RetornoRequisicao<List<ProdutoDTO>> retornoRequisicao = new RetornoRequisicao<List<ProdutoDTO>>();
+		try {
+			String precoInicial = requisicao.getParameter("precoInicial");
+			String precoFinal = requisicao.getParameter("precoFinal");
+			if (precoInicial == null || precoInicial.isEmpty()) {
+				throw new Exception("Informe o preço inicial do produto para consulta!");
+			}
+			if (precoFinal == null || precoFinal.isEmpty()) {
+				throw new Exception("Informe o preço final do produto para consulta!");
+			}
+			double precoInicialDouble = Double.parseDouble(precoInicial);
+			double precoFinalDouble = Double.parseDouble(precoFinal);
+			if (precoInicialDouble < 0) {
+				throw new Exception("O preço inicial não deve ser menor que 0!");
+			}
+			if (precoFinalDouble < 0) {
+				throw new Exception("O preço final não deve ser menor que 0!");
+			}
+			if (precoFinalDouble < precoInicialDouble) {
+				throw new Exception("Não é possível consultar produtos em que o preço final é menor que o preço inicial!");
+			}
+			List<ProdutoDTO> produtos = this.produtoRepositorio.buscarProdutosEntrePrecosDeVenda(precoInicialDouble, precoFinalDouble);
+			if (produtos.size() == 0) {
+				throw new Exception("Não existe produtos entre esses preços!");
+			}
+			if (produtos.size() == 1) {
+				retornoRequisicao.setMensagem("Existe 1 produto entre esses preços!");
+			} else {
+				retornoRequisicao.setMensagem("Existe no total " + produtos.size() + " produtos entre esses preços!");
+			}
+			retornoRequisicao.setConteudo(produtos);
+		} catch (Exception e) {
+			retornoRequisicao.setMensagem(e.getMessage());
+		}
+		requisicao.setCharacterEncoding("utf-8");
+		resposta.setCharacterEncoding("utf-8");
+		resposta.setContentType("application/json");
+		String retornoJson = this.gson.toJson(retornoRequisicao);
+		PrintWriter printWriter = resposta.getWriter();
+		printWriter.write(retornoJson);
+		printWriter.flush();
+	}
+	public void buscarProdutoPelaCategoria(HttpServletRequest requisicao, HttpServletResponse resposta) throws IOException {
+		RetornoRequisicao<List<ProdutoDTO>> retornoRequisicao = new RetornoRequisicao<List<ProdutoDTO>>();
+		try {
+			String idCategoriaString = requisicao.getParameter("id");
+			if (idCategoriaString == null || idCategoriaString.isEmpty()) {
+				throw new Exception("Informe o id da categoria!");
+			}
+			int idCategoria = Integer.parseInt(idCategoriaString);
+			if (idCategoria <= 0) {
+				throw new Exception("O id da categoria deve ser um valor inteiro maior que 0!");
+			}
+			List<ProdutoDTO> produtos = this.produtoRepositorio.buscarProdutosPeloIdDaCategoria(idCategoria);
+			if (produtos.size() == 0) {
+				throw new Exception("Não existem produtos dessa categoria cadastrados no banco de dados!");
+			}
+			if (produtos.size() == 1) {
+				retornoRequisicao.setMensagem("Existe 1 produto dessa categoria cadastrado no banco de dados!");
+			} else {
+				retornoRequisicao.setMensagem("Existe no total " + produtos.size() + " produtos dessa categoria cadastrados no banco de dados!");
+			}
+			retornoRequisicao.setConteudo(produtos);
+		} catch (Exception e) {
+			retornoRequisicao.setMensagem(e.getMessage());
+		}
+		requisicao.setCharacterEncoding("utf-8");
+		resposta.setCharacterEncoding("utf-8");
+		resposta.setContentType("application/json");
+		String retornoJson = this.gson.toJson(retornoRequisicao);
+		PrintWriter printWriter = resposta.getWriter();
+		printWriter.write(retornoJson);
+		printWriter.flush();
+	}
 }

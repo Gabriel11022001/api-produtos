@@ -120,28 +120,106 @@ public class ProdutoRepositorio implements IProdutoRepositorio {
 		conexao.close();
 	}
 	@Override
-	public ProdutoDTO buscarProdutoPeloNome(String nome) throws Exception {
-		
-		return null;
-	}
-	@Override
-	public ProdutoDTO buscarProdutoPelaDescricaoResumida(String descricaoResumida) throws Exception {
-		
-		return null;
+	public List<ProdutoDTO> buscarProdutoPeloNome(String nome) throws Exception {
+		List<ProdutoDTO> produtos = new ArrayList<ProdutoDTO>();
+		String query = "SELECT * FROM tbl_produtos WHERE produto_nome LIKE '%"+ nome +"%';";
+		Connection conexao = Conexao.getConexao();
+		PreparedStatement stmt = conexao.prepareStatement(query);
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			ProdutoDTO produtoDTO = new ProdutoDTO();
+			produtoDTO.setId(rs.getInt("produto_id"));
+			produtoDTO.setNome(rs.getString("produto_nome"));
+			produtoDTO.setDescricaoResumida(rs.getString("produto_descricao_resumida"));
+			produtoDTO.setDescricaoCompleta(rs.getString("produto_descricao_completa"));
+			produtoDTO.setEmDestaque(rs.getBoolean("produto_em_destaque"));
+			produtoDTO.setPrecoVenda(rs.getDouble("produto_preco_venda"));
+			produtoDTO.setQuantidadeUnidadesEmEstoque(rs.getInt("produto_quantidade_unidades_em_estoque"));
+			produtoDTO.setDataCadastro(rs.getDate("produto_data_cadastro").toLocalDate());
+			int idCategoria = rs.getInt("categoria_id");
+			CategoriaDTO categoriaDTO = new CategoriaRepositorio().buscarPeloId(idCategoria);
+			produtoDTO.setCategoria(categoriaDTO);
+			produtos.add(produtoDTO);
+		}
+		conexao.close();
+		return produtos;
 	}
 	@Override
 	public List<ProdutoDTO> buscarProdutosEmDestaque() throws Exception {
-		
-		return null;
+		List<ProdutoDTO> produtosEmDestaque = new ArrayList<ProdutoDTO>();
+		String query = "SELECT * FROM tbl_produtos WHERE produto_em_destaque = 1;";
+		Connection conexao = Conexao.getConexao();
+		PreparedStatement stmt = conexao.prepareStatement(query);
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			ProdutoDTO produtoDTO = new ProdutoDTO();
+			produtoDTO.setId(rs.getInt("produto_id"));
+			produtoDTO.setNome(rs.getString("produto_nome"));
+			produtoDTO.setDescricaoResumida(rs.getString("produto_descricao_resumida"));
+			produtoDTO.setDescricaoCompleta(rs.getString("produto_descricao_completa"));
+			produtoDTO.setEmDestaque(true);
+			produtoDTO.setPrecoVenda(rs.getDouble("produto_preco_venda"));
+			produtoDTO.setQuantidadeUnidadesEmEstoque(rs.getInt("produto_quantidade_unidades_em_estoque"));
+			LocalDate dataCadastro = rs.getDate("produto_data_cadastro").toLocalDate();
+			produtoDTO.setDataCadastro(dataCadastro);
+			CategoriaDTO categoria = new CategoriaRepositorio().buscarPeloId(rs.getInt("categoria_id"));
+			produtoDTO.setCategoria(categoria);
+			produtosEmDestaque.add(produtoDTO);
+		}
+		conexao.close();
+		return produtosEmDestaque;
 	}
 	@Override
 	public List<ProdutoDTO> buscarProdutosEntrePrecosDeVenda(double precoRangeInicial, double precoRangeFinal) throws Exception {
-		
-		return null;
+		List<ProdutoDTO> produtos = new ArrayList<ProdutoDTO>();
+		String query = "SELECT * FROM tbl_produtos WHERE produto_preco_venda >= ? AND produto_preco_venda <= ?;";
+		Connection conexao = Conexao.getConexao();
+		PreparedStatement stmt = conexao.prepareStatement(query);
+		stmt.setDouble(1, precoRangeInicial);
+		stmt.setDouble(2, precoRangeFinal);
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			ProdutoDTO produtoDTO = new ProdutoDTO();
+			produtoDTO.setId(rs.getInt("produto_id"));
+			produtoDTO.setNome(rs.getString("produto_nome"));
+			produtoDTO.setDescricaoResumida(rs.getString("produto_descricao_resumida"));
+			produtoDTO.setDescricaoCompleta(rs.getString("produto_descricao_completa"));
+			produtoDTO.setEmDestaque(true);
+			produtoDTO.setPrecoVenda(rs.getDouble("produto_preco_venda"));
+			produtoDTO.setQuantidadeUnidadesEmEstoque(rs.getInt("produto_quantidade_unidades_em_estoque"));
+			LocalDate dataCadastro = rs.getDate("produto_data_cadastro").toLocalDate();
+			produtoDTO.setDataCadastro(dataCadastro);
+			CategoriaDTO categoria = new CategoriaRepositorio().buscarPeloId(rs.getInt("categoria_id"));
+			produtoDTO.setCategoria(categoria);
+			produtos.add(produtoDTO);
+		}
+		conexao.close();
+		return produtos;
 	}
 	@Override
 	public List<ProdutoDTO> buscarProdutosPeloIdDaCategoria(int idCategoria) throws Exception {
-		
-		return null;
+		List<ProdutoDTO> produtos = new ArrayList<ProdutoDTO>();
+		String query = "SELECT * FROM tbl_produtos WHERE categoria_id = ?;";
+		Connection conexao = Conexao.getConexao();
+		PreparedStatement stmt = conexao.prepareStatement(query);
+		stmt.setInt(1, idCategoria);
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			ProdutoDTO produtoDTO = new ProdutoDTO();
+			produtoDTO.setId(rs.getInt("produto_id"));
+			produtoDTO.setNome(rs.getString("produto_nome"));
+			produtoDTO.setDescricaoResumida(rs.getString("produto_descricao_resumida"));
+			produtoDTO.setDescricaoCompleta(rs.getString("produto_descricao_completa"));
+			produtoDTO.setEmDestaque(true);
+			produtoDTO.setPrecoVenda(rs.getDouble("produto_preco_venda"));
+			produtoDTO.setQuantidadeUnidadesEmEstoque(rs.getInt("produto_quantidade_unidades_em_estoque"));
+			LocalDate dataCadastro = rs.getDate("produto_data_cadastro").toLocalDate();
+			produtoDTO.setDataCadastro(dataCadastro);
+			CategoriaDTO categoria = new CategoriaRepositorio().buscarPeloId(rs.getInt("categoria_id"));
+			produtoDTO.setCategoria(categoria);
+			produtos.add(produtoDTO);
+		}
+		conexao.close();
+		return produtos;
 	}
 }
