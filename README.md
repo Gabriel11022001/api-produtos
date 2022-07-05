@@ -2,6 +2,10 @@
 
 ## API de produtos e categorias que desenvolvi utilizando a linguagem Java.
 
+<div align="center">
+  <img src="https://user-images.githubusercontent.com/66484519/177402138-7421185b-c6c0-4b6d-a9a0-db6ad1edb96a.png" width="200px">
+</div>
+
 Endpoints:
 
 /api-produtos/categorias -> Listar todas as categorias.<br>
